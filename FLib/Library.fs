@@ -6,8 +6,8 @@ open Newtonsoft.Json.Linq
 module Subject =
     type Price = {value:int; currency:string}
     type CPU = {name:string; freq:double; order:int}
-    type RAM_Arg = {value:int; order:int}
-    type RAM = {min:RAM_Arg; max:RAM_Arg}
+    type Memory = {value:int; order:int}
+    type RAM = {min:Memory; max:Memory}
 
     [<AbstractClass>]
     type BaseItem(name: string, image_url: string, manufacturer: string, release_date: int, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>) =
@@ -20,8 +20,13 @@ module Subject =
         member this.RAM = ram
 
     type PC(name: string, image_url: string, manufacturer: string, release_date: int, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>, os: string list) =
-    inherit BaseItem(name, image_url, manufacturer, release_date, price, cpu, ram)
-    member this.OS = os
+        inherit BaseItem(name, image_url, manufacturer, release_date, price, cpu, ram)
+        member this.OS = os
+
+    type Console(name: string, image_url: string, manufacture: string, release_date: int, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>, generation: int, vram: Option<Memory>) =
+        inherit BaseItem(name, image_url, manufacture, release_date, price, cpu, ram)
+        member this.Generation = generation
+        member this.VRAM = vram
 
 module JSON =
     type Reader(file:string) =
