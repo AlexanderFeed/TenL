@@ -10,14 +10,18 @@ module Subject =
     type RAM = {min:RAM_Arg; max:RAM_Arg}
 
     [<AbstractClass>]
-    type BaseItem(name: string, manufacturer: string, release_date: int32, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>, image_url: string) =
+    type BaseItem(name: string, image_url: string, manufacturer: string, release_date: int, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>) =
         member this.Name = name
+        member this.Image_url = image_url
         member this.Manufacture = manufacturer
         member this.Releasedate = release_date
         member this.Price = price
         member this.CPU = cpu
-        member this.Image_url = image_url
         member this.RAM = ram
+
+    type PC(name: string, image_url: string, manufacturer: string, release_date: int, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>, os: string list) =
+    inherit BaseItem(name, image_url, manufacturer, release_date, price, cpu, ram)
+    member this.OS = os
 
 module JSON =
     type Reader(file:string) =
