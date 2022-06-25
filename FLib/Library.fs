@@ -39,8 +39,8 @@ module JSON =
     type Reader(file:string) =
         member this.items:(Subject.BaseItem list)=
             let rootObj = JObject.Parse(File.ReadAllText(file))
-            let obj1 = rootObj["PC"].ToObject<Subject.PC list>()
-            let obj2 = rootObj["Console"].ToObject<Subject.Console list>()
-            let obj3 = rootObj["PortaConsole"].ToObject<Subject.PortaConsole list>()
+            let pc = rootObj["PC"].ToObject<Subject.PC list>()
+            let consoles = rootObj["Console"].ToObject<Subject.Console list>()
+            let portables = rootObj["PortaConsole"].ToObject<Subject.PortableConsole list>()
 
-            List.map (fun r -> upcast r) obj1 @ List.map (fun r -> upcast r)obj2 @ List.map (fun r -> upcast r) obj3
+            List.map (fun r -> upcast r) pc @ List.map (fun r -> upcast r) consoles @ List.map (fun r -> upcast r) portables
