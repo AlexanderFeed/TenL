@@ -8,6 +8,8 @@ module Subject =
     type CPU = {name:string; freq:double; order:int}
     type Memory = {value:int; order:int}
     type RAM = {min:Memory; max:Memory}
+    type Battery = {battery_type:string; quantity:int}
+    type Screen = {colors:int; resolution:string}
 
     [<AbstractClass>]
     type BaseItem(name: string, image_url: string, manufacturer: string, release_date: int, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>) =
@@ -27,6 +29,11 @@ module Subject =
         inherit BaseItem(name, image_url, manufacture, release_date, price, cpu, ram)
         member this.Generation = generation
         member this.VRAM = vram
+
+    type PortableConsole(name: string, image_url: string, manufacture: string, release_date: int, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>, generation: int, vram: Option<Memory>, power_supply: Option<Battery>, screen: Option<Screen>) =
+        inherit Console(name, image_url, manufacture, release_date, price, cpu, ram, generation, vram)
+        member this.Screen = screen
+        member this.Power_supply = power_supply
 
 module JSON =
     type Reader(file:string) =
