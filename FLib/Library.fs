@@ -4,9 +4,20 @@ open System.IO
 open Newtonsoft.Json.Linq
 
 module Subject =
+    type Price = {value:int; currency:string}
+    type CPU = {name:string; freq:double; order:int}
+    type RAM_Arg = {value:int; order:int}
+    type RAM = {min:RAM_Arg; max:RAM_Arg}
+
     [<AbstractClass>]
-    type BaseItem(name:string) =
-        member this.name = name
+    type BaseItem(name: string, manufacturer: string, release_date: int32, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>, image_url: string) =
+        member this.Name = name
+        member this.Manufacture = manufacturer
+        member this.Releasedate = release_date
+        member this.Price = price
+        member this.CPU = cpu
+        member this.Image_url = image_url
+        member this.RAM = ram
 
 module JSON =
     type Reader(file:string) =
