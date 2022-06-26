@@ -9,7 +9,12 @@ module Subject =
     type Memory = {value:int; order:int}
     type RAM = {min:Memory; max:Memory}
     type Battery = {battery_type:string; quantity:int}
-    type Screen = {colors:int; resolution:string}
+    type Screen(colors:int, resolution:string) =
+        member this.colors = colors
+        member this.resolution = resolution
+        member this.GetScreenSquare() =
+            let size = this.resolution.Split('x')
+            (size[0] |> int) * (size[1] |> int)
 
     [<AbstractClass>]
     type BaseItem(name: string, image_url: string, manufacturer: string, release_date: int, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>) =
