@@ -42,6 +42,33 @@ module Subject =
 
 module JSON =
     type Reader(file:string) =
+        member this.GetPCs() =
+            List.filter (fun (item: Subject.BaseItem) -> item :? Subject.PC) this.items
+
+        member this.GetConsoles() =
+            List.filter (fun (item: Subject.BaseItem) -> item :? Subject.Console) this.items
+
+        member this.GetPortables() =
+            List.filter (fun (item: Subject.BaseItem) -> item :? Subject.PortableConsole) this.items
+
+        member this.GetBiggestScreenPortable() =
+            let portables = List.map(fun (item:Subject.BaseItem) -> item :?> Subject.PortableConsole) (this.GetPortables())
+            List.maxBy(fun (item:Subject.PortableConsole)-> item.Screen.GetScreenSquare() ) (portables)
+
+        member this.GetBiggestRAMDevice() =
+            List.maxBy(fun (item:Subject.BaseItem)-> item.RAM) (this.items)
+
+        member this.GetEarliestCommodore() =
+            let commodores = List.filter (fun (item: Subject.BaseItem) -> item.Manufacturer = "Commodore") this.items
+            List.minBy(fun (item:Subject.BaseItem)-> item.Release_date) (commodores)
+
+        member this.GetBiggestVRAMConsole() =
+            let consoles = List.map(fun (item:Subject.BaseItem) -> item :?> Subject.Console) (this.GetConsoles())
+            List.maxBy(fun (item:Subject.Console)-> item.VRAM) (consoles)
+
+        member this.GetMostOSPC() =
+            let pcs = List.map(fun (item:Subject.BaseItem) -> item :?> Subject.PC) (this.GetPCs())
+        List.maxBy(fun (item:Subject.PC)-> item.OS.Length) (pcs)
         member this.items:(Subject.BaseItem list)=
             let rootObj = JObject.Parse(File.ReadAllText(file))
             let pc = rootObj["PC"].ToObject<Subject.PC list>()
