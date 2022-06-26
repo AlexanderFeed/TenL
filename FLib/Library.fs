@@ -20,8 +20,8 @@ module Subject =
     type BaseItem(name: string, image_url: string, manufacturer: string, release_date: int, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>) =
         member this.Name = name
         member this.Image_url = image_url
-        member this.Manufacture = manufacturer
-        member this.Releasedate = release_date
+        member this.Manufacturer = manufacturer
+        member this.Release_date = release_date
         member this.Price = price
         member this.CPU = cpu
         member this.RAM = ram
@@ -35,7 +35,7 @@ module Subject =
         member this.Generation = generation
         member this.VRAM = vram
 
-    type PortableConsole(name: string, image_url: string, manufacture: string, release_date: int, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>, generation: int, vram: Option<Memory>, power_supply: Option<Battery>, screen: Option<Screen>) =
+    type PortableConsole(name: string, image_url: string, manufacture: string, release_date: int, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>, generation: int, vram: Option<Memory>, power_supply: Option<Battery>, screen: Screen) =
         inherit Console(name, image_url, manufacture, release_date, price, cpu, ram, generation, vram)
         member this.Screen = screen
         member this.Power_supply = power_supply
@@ -68,7 +68,8 @@ module JSON =
 
         member this.GetMostOSPC() =
             let pcs = List.map(fun (item:Subject.BaseItem) -> item :?> Subject.PC) (this.GetPCs())
-        List.maxBy(fun (item:Subject.PC)-> item.OS.Length) (pcs)
+            List.maxBy(fun (item:Subject.PC)-> item.OS.Length) (pcs)
+
         member this.items:(Subject.BaseItem list)=
             let rootObj = JObject.Parse(File.ReadAllText(file))
             let pc = rootObj["PC"].ToObject<Subject.PC list>()
