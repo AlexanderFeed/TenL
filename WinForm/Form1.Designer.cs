@@ -54,11 +54,13 @@
             treeNode6});
             this.treeView.Size = new System.Drawing.Size(194, 541);
             this.treeView.TabIndex = 0;
+            this.treeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView_AfterSelect);
             // 
             // comboBox
             // 
             this.comboBox.FormattingEnabled = true;
             this.comboBox.Items.AddRange(new object[] {
+            "Из списка",
             "Портативная консоль с самым большим разрешением экрана",
             "Устройство с самым большим ОЗУ",
             "Самое ранее устройство Commodore",
@@ -68,12 +70,15 @@
             this.comboBox.Name = "comboBox";
             this.comboBox.Size = new System.Drawing.Size(194, 23);
             this.comboBox.TabIndex = 1;
+            this.comboBox.SelectedIndexChanged += new System.EventHandler(this.comboBox_SelectedIndexChanged);
             // 
             // pictureBox
             // 
+            this.pictureBox.ImageLocation = "";
             this.pictureBox.Location = new System.Drawing.Point(212, 12);
             this.pictureBox.Name = "pictureBox";
             this.pictureBox.Size = new System.Drawing.Size(365, 277);
+            this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox.TabIndex = 2;
             this.pictureBox.TabStop = false;
             // 

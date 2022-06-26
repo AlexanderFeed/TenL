@@ -4,20 +4,59 @@ open System.IO
 open Newtonsoft.Json.Linq
 
 module Subject =
-    type Price = {value:int; currency:string}
-    type CPU = {name:string; freq:double; order:int}
-    type Memory = {value:int; order:int}
-    type RAM = {min:Memory; max:Memory}
-    type Battery = {battery_type:string; quantity:int}
+    let orderString order =
+        match order with
+        |1 -> "К"
+        |2 -> "М"
+        |3 -> "Г"
+        |_ -> ""
+
+    type Price(value:int, currency:string) =
+        member this.value = value
+        member this.currency = currency
+        member this.GetDesc() =
+            if this.value = 0 then ""
+            else "Цена: " + this.value.ToString() + this.currency + "\n"
+
+    type CPU(name:string, freq:double, order:int) =
+        member this.name = name
+        member this.freq = freq
+        member this.order = order
+        member this.GetDesc() =
+            "ЦП: " + name + " " + freq.ToString() + (orderString order) + "Гц" + "\n"
+
+    type Memory(value:int, order:int) =
+        member this.value = value
+        member this.order = order
+        member this.GetDesc() =
+            "Видеопамять: " + value.ToString() + orderString order + "Б" + "\n"
+
+    type RAM(min:Memory, max:Memory) =
+        member this.min = min
+        member this.max = max
+        member this.GetDesc() =
+            let snd = 
+                if min.value = max.value && min.order = max.order then "\n"
+                else " - " + max.value.ToString() + orderString max.order + "Б" + "\n"
+            "ОЗУ: " + min.value.ToString() + orderString min.order + "Б" + snd
+
+    type Battery(battery_type:string, quantity:int) =
+        member this.battery_type = battery_type
+        member this.quantity = quantity
+        member this.GetDesc() =
+            "Питание: " + quantity.ToString() + " " + battery_type + "\n"
+
     type Screen(colors:int, resolution:string) =
         member this.colors = colors
         member this.resolution = resolution
         member this.GetScreenSquare() =
             let size = this.resolution.Split('x')
             (size[0] |> int) * (size[1] |> int)
+        member this.GetDesc() =
+            "Разрешение экрана: " + resolution + "\nКоличество цветов: " + colors.ToString() + "\n"
 
     [<AbstractClass>]
-    type BaseItem(name: string, image_url: string, manufacturer: string, release_date: int, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>) =
+    type BaseItem(name: string, image_url: string, manufacturer: string, release_date: int, price: Price, cpu:CPU, ram: RAM) =
         member this.Name = name
         member this.Image_url = image_url
         member this.Manufacturer = manufacturer
@@ -26,27 +65,61 @@ module Subject =
         member this.CPU = cpu
         member this.RAM = ram
 
-    type PC(name: string, image_url: string, manufacturer: string, release_date: int, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>, os: string list) =
+        abstract member GetDesc : unit -> string
+
+    type PC(name: string, image_url: string, manufacturer: string, release_date: int, price: Price, cpu:CPU, ram: RAM, os: string list) =
         inherit BaseItem(name, image_url, manufacturer, release_date, price, cpu, ram)
         member this.OS = os
 
-    type Console(name: string, image_url: string, manufacture: string, release_date: int, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>, generation: int, vram: Option<Memory>) =
-        inherit BaseItem(name, image_url, manufacture, release_date, price, cpu, ram)
+        override this.GetDesc() =
+            let osDesc = "Доступные ОС: " + (this.OS |> List.fold (fun r s -> if r = "" then s else r + ", " + s) "")
+            "Название: " + this.Name + "\n" +
+            "Производитель: " + this.Manufacturer + "\n" +
+            "Дата выпуска: " + this.Release_date.ToString() + "г." + "\n" +
+            this.Price.GetDesc() +
+            this.CPU.GetDesc() +
+            this.RAM.GetDesc() +
+            osDesc
+
+    type Console(name: string, image_url: string, manufacturer: string, release_date: int, price: Price, cpu:CPU, ram: RAM, generation: int, vram: Memory) =
+        inherit BaseItem(name, image_url, manufacturer, release_date, price, cpu, ram)
         member this.Generation = generation
         member this.VRAM = vram
 
-    type PortableConsole(name: string, image_url: string, manufacture: string, release_date: int, price: Option<Price>, cpu:Option<CPU>, ram: Option<RAM>, generation: int, vram: Option<Memory>, power_supply: Option<Battery>, screen: Screen) =
-        inherit Console(name, image_url, manufacture, release_date, price, cpu, ram, generation, vram)
+        override this.GetDesc() =
+            "Название: " + this.Name + "\n" +
+            "Производитель: " + this.Manufacturer + "\n" +
+            "Дата выпуска: " + this.Release_date.ToString() + "г." + "\n" +
+            "Поколение: " + this.Generation.ToString() + "\n" +
+            this.Price.GetDesc() +
+            this.CPU.GetDesc() +
+            this.RAM.GetDesc() +
+            this.VRAM.GetDesc()
+
+    type PortableConsole(name: string, image_url: string, manufacturer: string, release_date: int, price: Price, cpu:CPU, ram: RAM, generation: int, vram: Memory, power_supply: Battery, screen: Screen) =
+        inherit Console(name, image_url, manufacturer, release_date, price, cpu, ram, generation, vram)
         member this.Screen = screen
         member this.Power_supply = power_supply
+
+        override this.GetDesc() =
+            "Название: " + this.Name + "\n" +
+            "Производитель: " + this.Manufacturer + "\n" +
+            "Дата выпуска: " + this.Release_date.ToString() + "г." + "\n" +
+            "Поколение: " + this.Generation.ToString() + "\n" +
+            this.Price.GetDesc() +
+            this.CPU.GetDesc() +
+            this.RAM.GetDesc() +
+            this.VRAM.GetDesc() +
+            this.Screen.GetDesc() +
+            this.Power_supply.GetDesc()
 
 module JSON =
     type Reader(file:string) =
         member this.items:(Subject.BaseItem list)=
             let rootObj = JObject.Parse(File.ReadAllText(file))
             let pc = rootObj["PC"].ToObject<Subject.PC list>()
-            let consoles = rootObj["Console"].ToObject<Subject.Console list>()
-            let portables = rootObj["PortaConsole"].ToObject<Subject.PortableConsole list>()
+            let consoles = rootObj["Consoles"].ToObject<Subject.Console list>()
+            let portables = rootObj["Portable Consoles"].ToObject<Subject.PortableConsole list>()
 
             List.map (fun r -> upcast r) pc @ List.map (fun r -> upcast r) consoles @ List.map (fun r -> upcast r) portables
 
@@ -54,7 +127,7 @@ module JSON =
             List.filter (fun (item: Subject.BaseItem) -> item :? Subject.PC) this.items
 
         member this.GetConsoles() =
-            List.filter (fun (item: Subject.BaseItem) -> item :? Subject.Console) this.items
+            List.filter (fun (item: Subject.BaseItem) -> (item :? Subject.Console) && not (item :? Subject.PortableConsole)) this.items
 
         member this.GetPortables() =
             List.filter (fun (item: Subject.BaseItem) -> item :? Subject.PortableConsole) this.items
@@ -64,7 +137,7 @@ module JSON =
             List.maxBy(fun (item:Subject.PortableConsole)-> item.Screen.GetScreenSquare() ) (portables)
 
         member this.GetBiggestRAMDevice() =
-            List.maxBy(fun (item:Subject.BaseItem)-> item.RAM) (this.items)
+            List.maxBy(fun (item:Subject.BaseItem)-> item.RAM.max.value * ((1024.0 ** item.RAM.max.order) |> int) ) (this.items)
 
         member this.GetEarliestCommodore() =
             let commodores = List.filter (fun (item: Subject.BaseItem) -> item.Manufacturer = "Commodore") this.items
@@ -72,7 +145,7 @@ module JSON =
 
         member this.GetBiggestVRAMConsole() =
             let consoles = List.map(fun (item:Subject.BaseItem) -> item :?> Subject.Console) (this.GetConsoles())
-            List.maxBy(fun (item:Subject.Console)-> item.VRAM) (consoles)
+            List.maxBy(fun (item:Subject.Console)-> item.VRAM.value*(1024*item.VRAM.order)) (consoles)
 
         member this.GetMostOSPC() =
             let pcs = List.map(fun (item:Subject.BaseItem) -> item :?> Subject.PC) (this.GetPCs())
