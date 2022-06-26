@@ -10,7 +10,7 @@ namespace WinForm
             try { reader = new JSON.Reader(file); }
             catch { Application.Exit(); }
             InitializeComponent();
-            l_desc.Text = "";
+            textBox.Text = "";
             FSharpList<Subject.BaseItem> list = reader.GetPCs();
             for (int i = 0; i < list.Length; i++)
                 treeView.Nodes[0].Nodes.Add(list[i].Name);
@@ -33,7 +33,7 @@ namespace WinForm
                     case 1: list = reader.GetConsoles(); break;
                     case 2: list = reader.GetPortables(); break;
                 }
-                l_desc.Text = list[treeView.SelectedNode.Index].GetDesc();
+                textBox.Text = list[treeView.SelectedNode.Index].GetDesc();
                 pictureBox.ImageLocation = list[treeView.SelectedNode.Index].Image_url;
                 comboBox.SelectedIndex = 0;
             }
@@ -52,7 +52,7 @@ namespace WinForm
                     case 4: item = reader.GetBiggestVRAMConsole(); break;
                     case 5: item = reader.GetMostOSPC(); break;
                 }
-                l_desc.Text = item.GetDesc();
+                textBox.Text = item.GetDesc();
                 pictureBox.ImageLocation = item.Image_url;
             }
         }
