@@ -42,6 +42,14 @@ module Subject =
 
 module JSON =
     type Reader(file:string) =
+        member this.items:(Subject.BaseItem list)=
+            let rootObj = JObject.Parse(File.ReadAllText(file))
+            let pc = rootObj["PC"].ToObject<Subject.PC list>()
+            let consoles = rootObj["Console"].ToObject<Subject.Console list>()
+            let portables = rootObj["PortaConsole"].ToObject<Subject.PortableConsole list>()
+
+            List.map (fun r -> upcast r) pc @ List.map (fun r -> upcast r) consoles @ List.map (fun r -> upcast r) portables
+
         member this.GetPCs() =
             List.filter (fun (item: Subject.BaseItem) -> item :? Subject.PC) this.items
 
@@ -69,11 +77,3 @@ module JSON =
         member this.GetMostOSPC() =
             let pcs = List.map(fun (item:Subject.BaseItem) -> item :?> Subject.PC) (this.GetPCs())
             List.maxBy(fun (item:Subject.PC)-> item.OS.Length) (pcs)
-
-        member this.items:(Subject.BaseItem list)=
-            let rootObj = JObject.Parse(File.ReadAllText(file))
-            let pc = rootObj["PC"].ToObject<Subject.PC list>()
-            let consoles = rootObj["Console"].ToObject<Subject.Console list>()
-            let portables = rootObj["PortaConsole"].ToObject<Subject.PortableConsole list>()
-
-            List.map (fun r -> upcast r) pc @ List.map (fun r -> upcast r) consoles @ List.map (fun r -> upcast r) portables
